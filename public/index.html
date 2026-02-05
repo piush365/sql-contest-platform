@@ -3,21 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL Mastery Contest - Elite Coding Challenge</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>SQL Assessment Platform - Professional Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --premium-gold: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-            --dark-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.18);
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.12);
-            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
-            --shadow-xl: 0 30px 90px rgba(0, 0, 0, 0.25);
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary: #64748b;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --surface: #1e293b;
+            --surface-elevated: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --border-light: #475569;
         }
 
         * {
@@ -28,723 +34,633 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #0f0c29;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            min-height: 100vh;
-            padding: 0;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Animated background particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            animation: float 20s infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
             max-width: 1600px;
-            margin: 20px auto;
-            position: relative;
-            z-index: 1;
+            margin: 0 auto;
+            padding: 32px;
         }
 
-        .header-wrapper {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 50px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-wrapper::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
+        /* Header */
         .header {
-            position: relative;
-            z-index: 2;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: 4em;
-            margin-bottom: 15px;
-            font-weight: 900;
-            background: linear-gradient(to right, #fff, #f0f0f0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-            letter-spacing: -2px;
-        }
-
-        .header-subtitle {
-            font-size: 1.4em;
-            opacity: 0.95;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-
-        .live-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(10px);
-            padding: 12px 24px;
-            border-radius: 30px;
-            margin-top: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .pulse {
-            width: 12px;
-            height: 12px;
-            background: #00ff88;
-            border-radius: 50%;
-            box-shadow: 0 0 20px #00ff88;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.3); opacity: 0.6; }
-        }
-
-        .stats-bar {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 35px;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
-            backdrop-filter: blur(20px);
-            border-radius: 25px;
-            padding: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: var(--shadow-lg);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: linear-gradient(135deg, var(--surface) 0%, var(--bg-secondary) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px;
+            margin-bottom: 32px;
             position: relative;
             overflow: hidden;
         }
 
-        .stat-card::before {
+        .header::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.4s;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.025em;
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse-subtle 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s ease;
         }
 
         .stat-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 25px 70px rgba(102, 126, 234, 0.4);
+            border-color: var(--border-light);
+            transform: translateY(-2px);
         }
 
-        .stat-card:hover::before {
-            opacity: 1;
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .stat-icon {
-            font-size: 2.5em;
-            margin-bottom: 15px;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 8px;
+            font-size: 1.25rem;
         }
 
         .stat-label {
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 600;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
+            letter-spacing: 0.05em;
         }
 
         .stat-value {
-            font-size: 2.8em;
-            font-weight: 900;
-            color: white;
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
-            letter-spacing: -1px;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.025em;
         }
 
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            z-index: 2000;
-            justify-content: center;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
             align-items: center;
-            animation: fadeIn 0.3s;
+            justify-content: center;
+            padding: 24px;
         }
 
         .modal.show {
             display: flex;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         .modal-content {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
-            backdrop-filter: blur(20px);
-            padding: 60px;
-            border-radius: 35px;
-            max-width: 550px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 48px;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .modal-header {
+            text-align: center;
+            margin-bottom: 32px;
         }
 
         .modal-icon {
-            font-size: 6em;
-            margin-bottom: 25px;
-            animation: bounce 1s infinite;
+            font-size: 3rem;
+            margin-bottom: 16px;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .modal-content h2 {
-            font-size: 3em;
-            margin-bottom: 20px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-            letter-spacing: -1px;
+        .modal-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.025em;
         }
 
         .modal-subtitle {
-            font-size: 1.2em;
-            color: #6c757d;
-            margin-bottom: 40px;
-            line-height: 1.6;
+            font-size: 1rem;
+            color: var(--text-muted);
+            line-height: 1.5;
         }
 
         .form-group {
-            margin-bottom: 25px;
-            text-align: left;
+            margin-bottom: 24px;
         }
 
-        .form-group label {
+        .form-label {
             display: block;
-            margin-bottom: 10px;
-            font-weight: 700;
-            color: #2c3e50;
-            font-size: 0.95em;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.05em;
         }
 
-        .form-group input {
+        .form-input {
             width: 100%;
-            padding: 18px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 1.1em;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
             font-family: 'Inter', sans-serif;
-            transition: all 0.3s;
-            background: white;
         }
 
-        .form-group input:focus {
+        .form-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-            transform: translateY(-2px);
+            border-color: var(--primary);
+            background: var(--surface);
         }
 
-        .premium-button {
-            background: var(--primary-gradient);
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--primary);
             color: white;
-            padding: 20px 50px;
-            font-size: 1.3em;
             border: none;
-            border-radius: 18px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: 800;
-            width: 100%;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
+            letter-spacing: 0.025em;
         }
 
-        .premium-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
         }
 
-        .premium-button:hover::before {
-            left: 100%;
+        .btn-primary:active {
+            transform: translateY(0);
         }
 
-        .premium-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.6);
-        }
-
-        .content {
+        /* Content Layout */
+        .content-layout {
             display: grid;
-            grid-template-columns: 1fr 400px;
-            gap: 30px;
+            grid-template-columns: 1fr 380px;
+            gap: 32px;
         }
 
+        /* Question Card */
         .question-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 40px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: var(--shadow-lg);
-            transition: all 0.4s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .question-card::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: var(--primary-gradient);
-            border-radius: 30px;
-            opacity: 0;
-            z-index: -1;
-            transition: opacity 0.4s;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            transition: all 0.2s ease;
         }
 
         .question-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 80px rgba(102, 126, 234, 0.3);
-        }
-
-        .question-card:hover::before {
-            opacity: 0.1;
+            border-color: var(--border-light);
         }
 
         .question-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
         }
 
         .question-number {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-weight: 800;
-            font-size: 1.1em;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-            letter-spacing: 0.5px;
-        }
-
-        .points-badge {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 700;
-            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
-        }
-
-        .problem-statement {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-        }
-
-        .problem-statement h3 {
-            color: #fff;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .problem-statement p {
-            line-height: 1.8;
-            margin-bottom: 12px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .problem-statement ul {
-            margin-left: 20px;
-            margin-top: 15px;
-        }
-
-        .problem-statement li {
-            margin-bottom: 10px;
-            line-height: 1.6;
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        .problem-statement code {
-            background: rgba(102, 126, 234, 0.3);
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            color: #4facfe;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
             font-weight: 600;
-            border: 1px solid rgba(79, 172, 254, 0.3);
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        textarea {
+        .question-points {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .question-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            letter-spacing: -0.025em;
+        }
+
+        .question-description {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .question-requirements {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .question-requirements ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .question-requirements li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .question-requirements li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .question-requirements code {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-light);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.875rem;
+        }
+
+        .code-editor {
             width: 100%;
             min-height: 180px;
-            padding: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 18px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 15px;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-primary);
             resize: vertical;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            color: white;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            line-height: 1.6;
         }
 
-        textarea:focus {
+        .code-editor:focus {
             outline: none;
-            border-color: #4facfe;
-            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.2);
-            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--primary);
+            background: var(--surface);
         }
 
-        textarea::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+        .code-editor::placeholder {
+            color: var(--text-muted);
         }
 
         .button-group {
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .submit-btn {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            flex: 1;
-            padding: 16px;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .submit-btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 50px rgba(79, 172, 254, 0.6);
-        }
-
-        .result {
-            margin-top: 20px;
-            padding: 20px 25px;
-            border-radius: 18px;
-            font-weight: 700;
-            display: none;
-            animation: slideIn 0.4s;
-            font-size: 1.05em;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .result.success {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(34, 139, 34, 0.2) 100%);
-            color: #00ff88;
-            border: 2px solid #00ff88;
-            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
-        }
-
-        .result.error {
-            background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(197, 48, 48, 0.2) 100%);
-            color: #ff6b9d;
-            border: 2px solid #ff6b9d;
-            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .widget {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
-            backdrop-filter: blur(20px);
-            border-radius: 30px;
-            padding: 35px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.4s;
-        }
-
-        .widget:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 70px rgba(102, 126, 234, 0.3);
-        }
-
-        .widget-title {
-            font-size: 1.5em;
-            font-weight: 800;
-            margin-bottom: 25px;
-            color: white;
-            display: flex;
-            align-items: center;
             gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-dark);
+        }
+
+        .result-message {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        .result-message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .result-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .result-message.show {
+            display: block;
+        }
+
+        /* Sidebar */
+        .sidebar-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .leaderboard-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 18px;
-            margin-bottom: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            transition: all 0.3s;
+            gap: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
         }
 
         .leaderboard-item:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateX(5px);
-            border-color: rgba(255, 255, 255, 0.3);
+            border-color: var(--border-light);
+            background: var(--surface-elevated);
         }
 
         .leaderboard-rank {
-            font-weight: 900;
-            font-size: 1.3em;
-            background: var(--premium-gold);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            min-width: 40px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: var(--primary);
+        }
+
+        .leaderboard-info {
+            flex: 1;
         }
 
         .leaderboard-name {
-            color: white;
+            font-size: 0.875rem;
             font-weight: 600;
-            flex: 1;
-            margin: 0 15px;
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 2px;
         }
 
         .leaderboard-score {
-            color: #00ff88;
-            font-weight: 800;
-            font-size: 1.1em;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            font-size: 0.75rem;
+            color: var(--text-muted);
         }
 
-        .loading {
-            text-align: center;
-            padding: 30px;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-top: 4px solid #4facfe;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .platform-stats p {
-            color: rgba(255, 255, 255, 0.8);
-            margin-bottom: 15px;
-            font-size: 1.05em;
+        .stat-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border);
         }
 
-        .platform-stats strong {
-            color: #4facfe;
-            font-weight: 800;
-            font-size: 1.2em;
+        .stat-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .stat-row-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-row-value {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 32px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .completion-score {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .completion-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .completion-stat {
+            text-align: center;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .completion-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .completion-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
         }
 
         @media (max-width: 1200px) {
-            .content {
+            .content-layout {
                 grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 3em;
             }
         }
 
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.5em;
+            .container {
+                padding: 16px;
             }
-            
-            .stats-bar {
+
+            .header {
+                padding: 24px;
+            }
+
+            .header-title h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .modal-content {
-                padding: 40px 30px;
+                padding: 32px 24px;
             }
-        }
 
-        /* Completion celebration effect */
-        .confetti {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: #f0f;
-            position: absolute;
-            animation: confetti-fall 3s linear;
-        }
-
-        @keyframes confetti-fall {
-            to {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
+            .question-card {
+                padding: 24px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Animated background particles -->
-    <div class="particles" id="particles"></div>
-
     <!-- Start Modal -->
     <div class="modal" id="startModal">
         <div class="modal-content">
-            <div class="modal-icon">🏆</div>
-            <h2>SQL Elite Contest</h2>
-            <p class="modal-subtitle">
-                Join the most prestigious SQL challenge.<br>
-                Compete globally. Master your skills. Claim victory.
-            </p>
+            <div class="modal-header">
+                <div class="modal-icon">📋</div>
+                <h2 class="modal-title">SQL Assessment</h2>
+                <p class="modal-subtitle">Professional SQL skills evaluation platform for technical assessment</p>
+            </div>
             <form id="startForm">
                 <div class="form-group">
-                    <label for="participantName">Full Name</label>
-                    <input type="text" id="participantName" required placeholder="Enter your full name">
+                    <label class="form-label" for="participantName">Full Name</label>
+                    <input type="text" id="participantName" class="form-input" required placeholder="Enter your full name">
                 </div>
                 <div class="form-group">
-                    <label for="participantEmail">Email Address</label>
-                    <input type="email" id="participantEmail" required placeholder="your.email@example.com">
+                    <label class="form-label" for="participantEmail">Email Address</label>
+                    <input type="email" id="participantEmail" class="form-input" required placeholder="your.email@company.com">
                 </div>
-                <button type="submit" class="premium-button">Begin Challenge</button>
+                <button type="submit" class="btn-primary">Begin Assessment</button>
             </form>
         </div>
     </div>
@@ -752,89 +668,112 @@
     <!-- Completion Modal -->
     <div class="modal" id="completionModal">
         <div class="modal-content">
-            <div class="modal-icon">🎉</div>
-            <h2>Victory!</h2>
-            <p class="modal-subtitle">Outstanding performance in the SQL Elite Contest</p>
-            <div style="font-size: 3.5em; font-weight: 900; background: var(--premium-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 25px 0;" id="finalScore">0 / 60</div>
-            <div style="margin: 25px 0; color: #2c3e50;">
-                <p style="margin: 10px 0;"><strong>Global Rank:</strong> <span id="yourRank" style="color: #667eea; font-weight: 800;">--</span></p>
-                <p style="margin: 10px 0;"><strong>Accuracy Rate:</strong> <span id="finalAccuracy" style="color: #00ff88; font-weight: 800;">--</span></p>
+            <div class="modal-header">
+                <div class="modal-icon">✓</div>
+                <h2 class="modal-title">Assessment Complete</h2>
+                <p class="modal-subtitle">Your submission has been recorded</p>
             </div>
-            <button class="premium-button" onclick="location.reload()">View Full Leaderboard</button>
+            <div class="completion-score" id="finalScore">0 / 60</div>
+            <div class="completion-stats">
+                <div class="completion-stat">
+                    <div class="completion-stat-label">Rank</div>
+                    <div class="completion-stat-value" id="yourRank">—</div>
+                </div>
+                <div class="completion-stat">
+                    <div class="completion-stat-label">Accuracy</div>
+                    <div class="completion-stat-value" id="finalAccuracy">—</div>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="location.reload()">View Leaderboard</button>
         </div>
     </div>
 
     <div class="container">
-        <div class="header-wrapper">
-            <div class="header">
-                <h1>⚡ SQL Mastery Contest</h1>
-                <p class="header-subtitle">Elite Multi-User SQL Challenge Platform</p>
-                <div class="live-indicator">
-                    <div class="pulse"></div>
-                    <span id="liveParticipants" style="font-weight: 700;">-- Active Challengers</span>
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>SQL Technical Assessment</h1>
+                    <p class="header-subtitle">Multi-user evaluation platform</p>
+                </div>
+                <div class="header-meta">
+                    <div class="status-badge">
+                        <div class="status-dot"></div>
+                        <span id="liveParticipants">— Active</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="stats-bar">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon">⏱️</div>
-                <div class="stat-label">Time Remaining</div>
+                <div class="stat-header">
+                    <div class="stat-icon">⏱</div>
+                    <div class="stat-label">Time Remaining</div>
+                </div>
                 <div class="stat-value" id="timer">45:00</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">📊</div>
-                <div class="stat-label">Your Score</div>
+                <div class="stat-header">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-label">Current Score</div>
+                </div>
                 <div class="stat-value" id="totalScore">0 / 60</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-label">Completed</div>
+                <div class="stat-header">
+                    <div class="stat-icon">✓</div>
+                    <div class="stat-label">Progress</div>
+                </div>
                 <div class="stat-value" id="questionsCompleted">0 / 6</div>
             </div>
             <div class="stat-card">
-                <div class="stat-icon">🎯</div>
-                <div class="stat-label">Accuracy</div>
+                <div class="stat-header">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
                 <div class="stat-value" id="accuracyRate">0%</div>
             </div>
         </div>
 
-        <div class="content">
+        <!-- Content Layout -->
+        <div class="content-layout">
             <div id="questionsSection">
                 <!-- Questions will be loaded here -->
             </div>
 
-            <div class="sidebar">
-                <!-- Live Leaderboard -->
-                <div class="widget">
-                    <div class="widget-title">🏆 Live Leaderboard</div>
+            <aside>
+                <!-- Leaderboard -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Leaderboard</h3>
                     <div id="leaderboard">
                         <div class="loading">
                             <div class="spinner"></div>
-                            <p>Loading rankings...</p>
+                            <p>Loading...</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Live Stats -->
-                <div class="widget">
-                    <div class="widget-title">📊 Platform Analytics</div>
-                    <div class="platform-stats" id="platformStats">
-                        <p>
-                            <span>Total Sessions</span>
-                            <strong id="totalSessions">--</strong>
-                        </p>
-                        <p>
-                            <span>Average Score</span>
-                            <strong id="avgScore">--</strong>
-                        </p>
-                        <p>
-                            <span>Top Score</span>
-                            <strong style="color: #f6d365;">60 pts</strong>
-                        </p>
+                <!-- Statistics -->
+                <div class="sidebar-section">
+                    <h3 class="sidebar-title">Statistics</h3>
+                    <div id="platformStats">
+                        <div class="stat-row">
+                            <span class="stat-row-label">Total Sessions</span>
+                            <span class="stat-row-value" id="totalSessions">—</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-row-label">Average Score</span>
+                            <span class="stat-row-value" id="avgScore">—</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-row-label">Top Score</span>
+                            <span class="stat-row-value">60</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </aside>
         </div>
     </div>
 
@@ -851,30 +790,17 @@
         let completedQuestions = new Set();
         let totalScore = 0;
 
-        // Generate particles
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            for (let i = 0; i < 50; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 20 + 's';
-                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-                particlesContainer.appendChild(particle);
-            }
-        }
-
         // Questions data
         const questions = [
             {
                 number: 1,
                 title: "CREATE + CONSTRAINTS",
-                description: "Create a table <code>students</code> with the following specifications:",
+                description: "Create a table named students with the following specifications:",
                 requirements: [
-                    "<code>student_id</code> as PRIMARY KEY (INT)",
-                    "<code>name</code> as NOT NULL (VARCHAR)",
-                    "<code>email</code> as UNIQUE (VARCHAR)",
-                    "<code>age</code> with CHECK constraint (age >= 18)"
+                    "student_id as PRIMARY KEY (INT)",
+                    "name as NOT NULL (VARCHAR)",
+                    "email as UNIQUE (VARCHAR)",
+                    "age with CHECK constraint (age >= 18)"
                 ]
             },
             {
@@ -889,32 +815,31 @@
             {
                 number: 3,
                 title: "AGGREGATE FUNCTIONS",
-                description: "Calculate the total number of students and their average age from the <code>students</code> table.",
+                description: "Calculate the total number of students and their average age from the students table.",
                 requirements: []
             },
             {
                 number: 4,
                 title: "GROUP BY + HAVING",
                 description: "Display course names and enrollment count, showing only courses with more than 3 students enrolled.",
-                requirements: ["Assume an <code>enrollments</code> table exists with columns: <code>course_name</code> and <code>student_id</code>"]
+                requirements: ["Assume an enrollments table exists with columns: course_name and student_id"]
             },
             {
                 number: 5,
                 title: "SUBQUERY",
                 description: "Display names of students whose marks exceed the class average.",
-                requirements: ["Assume the <code>students</code> table includes a <code>marks</code> column"]
+                requirements: ["Assume the students table includes a marks column"]
             },
             {
                 number: 6,
                 title: "VIEW CREATION",
-                description: "Create a VIEW named <code>eligible_students</code> showing students who scored 40 or more marks.",
+                description: "Create a VIEW named eligible_students showing students who scored 40 or more marks.",
                 requirements: []
             }
         ];
 
         // Initialize
         window.onload = function() {
-            createParticles();
             document.getElementById('startModal').classList.add('show');
             loadLeaderboard();
             loadLiveStats();
@@ -952,10 +877,10 @@
                     document.getElementById('startModal').classList.remove('show');
                     initializeContest();
                 } else {
-                    alert('Failed to start contest: ' + data.error);
+                    alert('Failed to start assessment: ' + data.error);
                 }
             } catch (error) {
-                console.error('Error starting contest:', error);
+                console.error('Error starting assessment:', error);
                 alert('Failed to connect to server. Please ensure the backend is running on port 3000.');
             }
         });
@@ -972,24 +897,22 @@
                 <div class="question-card">
                     <div class="question-header">
                         <span class="question-number">Question ${q.number}</span>
-                        <span class="points-badge">+10 Points</span>
+                        <span class="question-points">+10 Points</span>
                     </div>
-                    <div class="problem-statement">
-                        <h3>${q.title}</h3>
-                        <p><strong>Challenge:</strong></p>
-                        <p>${q.description}</p>
-                        ${q.requirements.length > 0 ? `
+                    <h3 class="question-title">${q.title}</h3>
+                    <p class="question-description">${q.description}</p>
+                    ${q.requirements.length > 0 ? `
+                        <div class="question-requirements">
                             <ul>
-                                ${q.requirements.map(req => `<li>${req}</li>`).join('')}
+                                ${q.requirements.map(req => `<li>${req.replace(/`([^`]+)`/g, '<code>$1</code>')}</li>`).join('')}
                             </ul>
-                        ` : ''}
-                    </div>
-                    <textarea id="q${q.number}" placeholder="-- Write your SQL query here
--- Be precise, be accurate, be brilliant..."></textarea>
+                        </div>
+                    ` : ''}
+                    <textarea id="q${q.number}" class="code-editor" placeholder="-- Write your SQL query here"></textarea>
                     <div class="button-group">
-                        <button class="submit-btn" onclick="submitAnswer(${q.number})">🚀 Submit Solution</button>
+                        <button class="btn-submit" onclick="submitAnswer(${q.number})">Submit Solution</button>
                     </div>
-                    <div class="result" id="result${q.number}"></div>
+                    <div class="result-message" id="result${q.number}"></div>
                 </div>
             `).join('');
         }
@@ -999,9 +922,8 @@
             const resultDiv = document.getElementById(`result${questionNum}`);
 
             if (!query) {
-                resultDiv.className = 'result error';
-                resultDiv.innerHTML = '❌ Query cannot be empty. Write your solution first!';
-                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-message error show';
+                resultDiv.textContent = 'Please write a query before submitting.';
                 return;
             }
 
@@ -1024,9 +946,8 @@
 
                 if (data.success) {
                     if (isCorrect) {
-                        resultDiv.className = 'result success';
-                        resultDiv.innerHTML = '✅ Perfect! Outstanding work! (+10 points)';
-                        resultDiv.style.display = 'block';
+                        resultDiv.className = 'result-message success show';
+                        resultDiv.textContent = 'Correct. Solution accepted. (+10 points)';
                         
                         if (!completedQuestions.has(questionNum)) {
                             completedQuestions.add(questionNum);
@@ -1034,29 +955,23 @@
                             updateUI();
                             
                             if (completedQuestions.size === 6) {
-                                setTimeout(() => {
-                                    createConfetti();
-                                    endContest();
-                                }, 1500);
+                                setTimeout(endContest, 1500);
                             }
                         }
                     } else {
-                        resultDiv.className = 'result error';
-                        resultDiv.innerHTML = '❌ Not quite right. Review the requirements and try again!';
-                        resultDiv.style.display = 'block';
+                        resultDiv.className = 'result-message error show';
+                        resultDiv.textContent = 'Incorrect. Please review your solution and try again.';
                     }
                 } else {
-                    resultDiv.className = 'result error';
-                    resultDiv.innerHTML = '❌ ' + data.error;
-                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'result-message error show';
+                    resultDiv.textContent = data.error;
                 }
 
                 loadLeaderboard();
             } catch (error) {
                 console.error('Error submitting answer:', error);
-                resultDiv.className = 'result error';
-                resultDiv.innerHTML = '❌ Connection error. Please try again.';
-                resultDiv.style.display = 'block';
+                resultDiv.className = 'result-message error show';
+                resultDiv.textContent = 'Connection error. Please try again.';
             }
         }
 
@@ -1138,9 +1053,11 @@
                     const container = document.getElementById('leaderboard');
                     container.innerHTML = data.leaderboard.map(item => `
                         <div class="leaderboard-item">
-                            <span class="leaderboard-rank">#${item.rank}</span>
-                            <span class="leaderboard-name">${item.name}</span>
-                            <span class="leaderboard-score">${item.score} pts</span>
+                            <div class="leaderboard-rank">${item.rank}</div>
+                            <div class="leaderboard-info">
+                                <span class="leaderboard-name">${item.name}</span>
+                                <span class="leaderboard-score">${item.score} points</span>
+                            </div>
                         </div>
                     `).join('');
                 }
@@ -1156,10 +1073,10 @@
 
                 if (data.success) {
                     document.getElementById('liveParticipants').textContent = 
-                        `${data.stats.activeParticipants} Active Challengers`;
+                        `${data.stats.activeParticipants} Active`;
                     document.getElementById('totalSessions').textContent = data.stats.totalSessions;
                     document.getElementById('avgScore').textContent = 
-                        Math.round(data.stats.averageScore) + ' pts';
+                        Math.round(data.stats.averageScore);
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
@@ -1191,18 +1108,6 @@
             document.getElementById('accuracyRate').textContent = accuracy + '%';
         }
 
-        function createConfetti() {
-            for (let i = 0; i < 100; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
-                confetti.style.animationDelay = Math.random() * 3 + 's';
-                document.body.appendChild(confetti);
-                setTimeout(() => confetti.remove(), 3000);
-            }
-        }
-
         async function endContest() {
             clearInterval(timerInterval);
 
@@ -1231,7 +1136,7 @@
                     document.getElementById('completionModal').classList.add('show');
                 }
             } catch (error) {
-                console.error('Error ending contest:', error);
+                console.error('Error ending assessment:', error);
             }
         }
     </script>
