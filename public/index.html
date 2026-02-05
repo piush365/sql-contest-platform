@@ -388,6 +388,34 @@
             font-size: 0.875rem;
         }
 
+        .example-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .example-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .example-code {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            overflow-x: auto;
+        }
+
         .code-editor {
             width: 100%;
             min-height: 180px;
@@ -790,51 +818,91 @@
         let completedQuestions = new Set();
         let totalScore = 0;
 
-        // Questions data
+        // Questions data with comprehensive validation
         const questions = [
             {
                 number: 1,
-                title: "CREATE + CONSTRAINTS",
-                description: "Create a table named students with the following specifications:",
+                title: "CREATE TABLE WITH CONSTRAINTS",
+                description: "Create a table named <code>students</code> with proper constraints.",
                 requirements: [
-                    "student_id as PRIMARY KEY (INT)",
-                    "name as NOT NULL (VARCHAR)",
-                    "email as UNIQUE (VARCHAR)",
-                    "age with CHECK constraint (age >= 18)"
-                ]
+                    "<code>student_id</code> as INTEGER PRIMARY KEY",
+                    "<code>name</code> as VARCHAR(100) NOT NULL",
+                    "<code>email</code> as VARCHAR(100) UNIQUE",
+                    "<code>age</code> as INTEGER with CHECK constraint (age >= 18)"
+                ],
+                example: `CREATE TABLE students (
+    student_id INTEGER PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    age INTEGER CHECK (age >= 18)
+);`
             },
             {
                 number: 2,
-                title: "SELECT + WHERE + LOGIC",
-                description: "Display names of students matching these criteria:",
+                title: "SELECT WITH WHERE CLAUSE",
+                description: "Write a query to select student names based on specific conditions.",
                 requirements: [
-                    "Students older than 18 (age > 18)",
-                    "Email field is not NULL"
-                ]
+                    "Select only the <code>name</code> column",
+                    "From the <code>students</code> table",
+                    "Where <code>age</code> is greater than 18",
+                    "AND <code>email</code> is NOT NULL"
+                ],
+                example: `SELECT name
+FROM students
+WHERE age > 18 AND email IS NOT NULL;`
             },
             {
                 number: 3,
                 title: "AGGREGATE FUNCTIONS",
-                description: "Calculate the total number of students and their average age from the students table.",
-                requirements: []
+                description: "Calculate statistical information about students.",
+                requirements: [
+                    "Find the total COUNT of students",
+                    "Calculate the AVERAGE age",
+                    "Both values should be in a single query"
+                ],
+                example: `SELECT COUNT(*) AS total_students, AVG(age) AS average_age
+FROM students;`
             },
             {
                 number: 4,
-                title: "GROUP BY + HAVING",
-                description: "Display course names and enrollment count, showing only courses with more than 3 students enrolled.",
-                requirements: ["Assume an enrollments table exists with columns: course_name and student_id"]
+                title: "GROUP BY WITH HAVING",
+                description: "Analyze enrollment data by course. Assume there's an <code>enrollments</code> table with columns <code>course_name</code> and <code>student_id</code>.",
+                requirements: [
+                    "Select <code>course_name</code> and count of students",
+                    "Group by <code>course_name</code>",
+                    "Show only courses with MORE THAN 3 students using HAVING"
+                ],
+                example: `SELECT course_name, COUNT(student_id) AS student_count
+FROM enrollments
+GROUP BY course_name
+HAVING COUNT(student_id) > 3;`
             },
             {
                 number: 5,
                 title: "SUBQUERY",
-                description: "Display names of students whose marks exceed the class average.",
-                requirements: ["Assume the students table includes a marks column"]
+                description: "Use a subquery to find students above average. Assume the <code>students</code> table has a <code>marks</code> column.",
+                requirements: [
+                    "Select <code>name</code> from students",
+                    "Where <code>marks</code> is greater than the average marks",
+                    "Use a subquery with AVG() function"
+                ],
+                example: `SELECT name
+FROM students
+WHERE marks > (SELECT AVG(marks) FROM students);`
             },
             {
                 number: 6,
-                title: "VIEW CREATION",
-                description: "Create a VIEW named eligible_students showing students who scored 40 or more marks.",
-                requirements: []
+                title: "CREATE VIEW",
+                description: "Create a view to filter eligible students based on marks.",
+                requirements: [
+                    "Create a VIEW named <code>eligible_students</code>",
+                    "Select student names where marks >= 40",
+                    "Use proper VIEW syntax with AS"
+                ],
+                example: `CREATE VIEW eligible_students AS
+SELECT name
+FROM students
+WHERE marks >= 40;`
             }
         ];
 
@@ -904,10 +972,14 @@
                     ${q.requirements.length > 0 ? `
                         <div class="question-requirements">
                             <ul>
-                                ${q.requirements.map(req => `<li>${req.replace(/`([^`]+)`/g, '<code>$1</code>')}</li>`).join('')}
+                                ${q.requirements.map(req => `<li>${req}</li>`).join('')}
                             </ul>
                         </div>
                     ` : ''}
+                    <div class="example-section">
+                        <div class="example-title">Expected Query Format</div>
+                        <div class="example-code">${q.example}</div>
+                    </div>
                     <textarea id="q${q.number}" class="code-editor" placeholder="-- Write your SQL query here"></textarea>
                     <div class="button-group">
                         <button class="btn-submit" onclick="submitAnswer(${q.number})">Submit Solution</button>
@@ -947,7 +1019,7 @@
                 if (data.success) {
                     if (isCorrect) {
                         resultDiv.className = 'result-message success show';
-                        resultDiv.textContent = 'Correct. Solution accepted. (+10 points)';
+                        resultDiv.textContent = '✓ Correct. Solution accepted. (+10 points)';
                         
                         if (!completedQuestions.has(questionNum)) {
                             completedQuestions.add(questionNum);
@@ -960,7 +1032,7 @@
                         }
                     } else {
                         resultDiv.className = 'result-message error show';
-                        resultDiv.textContent = 'Incorrect. Please review your solution and try again.';
+                        resultDiv.textContent = '✗ Incorrect. Please review the requirements and example, then try again.';
                     }
                 } else {
                     resultDiv.className = 'result-message error show';
@@ -976,53 +1048,89 @@
         }
 
         function validateQuery(questionNum, query) {
-            const normalized = query.toUpperCase().replace(/\s+/g, ' ').trim();
+            // Normalize the query: remove extra whitespace, convert to uppercase
+            const normalized = query
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toUpperCase()
+                .replace(/\(/g, ' ( ')
+                .replace(/\)/g, ' ) ')
+                .replace(/,/g, ' , ')
+                .replace(/\s+/g, ' ');
 
             switch(questionNum) {
                 case 1:
+                    // CREATE TABLE students with all required constraints
                     return normalized.includes('CREATE TABLE') &&
                            normalized.includes('STUDENTS') &&
+                           (normalized.includes('STUDENT_ID') || normalized.includes('STUDENTID')) &&
                            normalized.includes('PRIMARY KEY') &&
+                           normalized.includes('NAME') &&
                            normalized.includes('NOT NULL') &&
+                           normalized.includes('EMAIL') &&
                            normalized.includes('UNIQUE') &&
+                           normalized.includes('AGE') &&
                            normalized.includes('CHECK') &&
-                           (normalized.includes('>=18') || normalized.includes('>= 18'));
+                           (normalized.includes('AGE >= 18') || normalized.includes('AGE>=18'));
                 
                 case 2:
+                    // SELECT name WHERE age > 18 AND email IS NOT NULL
                     return normalized.includes('SELECT') &&
                            normalized.includes('NAME') &&
                            normalized.includes('FROM') &&
                            normalized.includes('STUDENTS') &&
-                           (normalized.includes('AGE>18') || normalized.includes('AGE > 18')) &&
-                           (normalized.includes('EMAIL IS NOT NULL') || normalized.includes('EMAILISNOT NULL'));
+                           normalized.includes('WHERE') &&
+                           (normalized.includes('AGE > 18') || normalized.includes('AGE>18')) &&
+                           normalized.includes('AND') &&
+                           normalized.includes('EMAIL') &&
+                           normalized.includes('IS NOT NULL');
                 
                 case 3:
-                    return normalized.includes('COUNT(*)') &&
-                           normalized.includes('AVG(AGE)') &&
+                    // SELECT COUNT(*), AVG(age)
+                    return normalized.includes('SELECT') &&
+                           (normalized.includes('COUNT ( * )') || normalized.includes('COUNT(*)')) &&
+                           (normalized.includes('AVG ( AGE )') || normalized.includes('AVG(AGE)')) &&
                            normalized.includes('FROM') &&
                            normalized.includes('STUDENTS');
                 
                 case 4:
+                    // GROUP BY course_name HAVING COUNT > 3
                     return normalized.includes('SELECT') &&
-                           normalized.includes('COURSE_NAME') &&
+                           (normalized.includes('COURSE_NAME') || normalized.includes('COURSENAME')) &&
                            normalized.includes('COUNT') &&
+                           (normalized.includes('STUDENT_ID') || normalized.includes('STUDENTID') || normalized.includes('*')) &&
+                           normalized.includes('FROM') &&
+                           normalized.includes('ENROLLMENTS') &&
                            normalized.includes('GROUP BY') &&
+                           (normalized.includes('COURSE_NAME') || normalized.includes('COURSENAME')) &&
                            normalized.includes('HAVING') &&
-                           normalized.includes('>3');
+                           normalized.includes('COUNT') &&
+                           normalized.includes('> 3');
                 
                 case 5:
+                    // Subquery with AVG(marks)
                     return normalized.includes('SELECT') &&
                            normalized.includes('NAME') &&
+                           normalized.includes('FROM') &&
+                           normalized.includes('STUDENTS') &&
                            normalized.includes('WHERE') &&
-                           normalized.includes('MARKS>') &&
-                           normalized.includes('AVG(MARKS)');
+                           normalized.includes('MARKS') &&
+                           normalized.includes('>') &&
+                           (normalized.includes('SELECT AVG') || normalized.includes('SELECTAVG')) &&
+                           normalized.includes('AVG ( MARKS )') || normalized.includes('AVG(MARKS)');
                 
                 case 6:
+                    // CREATE VIEW eligible_students
                     return normalized.includes('CREATE VIEW') &&
-                           normalized.includes('ELIGIBLE_STUDENTS') &&
+                           (normalized.includes('ELIGIBLE_STUDENTS') || normalized.includes('ELIGIBLESTUDENTS')) &&
                            normalized.includes('AS') &&
                            normalized.includes('SELECT') &&
-                           (normalized.includes('MARKS>=40') || normalized.includes('MARKS >= 40'));
+                           normalized.includes('NAME') &&
+                           normalized.includes('FROM') &&
+                           normalized.includes('STUDENTS') &&
+                           normalized.includes('WHERE') &&
+                           normalized.includes('MARKS') &&
+                           (normalized.includes('>= 40') || normalized.includes('>=40'));
                 
                 default:
                     return false;
