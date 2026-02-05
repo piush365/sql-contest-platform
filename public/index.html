@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Contest - Multi-User Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .pulse {
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .stats-bar {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .question-card {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .points-badge {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .problem-statement {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .problem-statement h3 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+
+        .problem-statement code {
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+            display: block;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+            display: block;
+        }
+
+        .widget {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .widget-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .leaderboard-rank {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Modal -->
+    <div class="modal" id="startModal">
+        <div class="modal-content">
+            <div style="font-size: 5em; margin-bottom: 20px;">🏆</div>
+            <h2>SQL Hands-On Contest</h2>
+            <p style="font-size: 1.1em; color: #6c757d; margin-bottom: 30px;">
+                Join the global SQL challenge!<br>
+                Compete with others in real-time.
+            </p>
+            <form id="startForm">
+                <div class="form-group">
+                    <label for="participantName">Full Name *</label>
+                    <input type="text" id="participantName" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="participantEmail">Email *</label>
+                    <input type="email" id="participantEmail" required placeholder="your.email@example.com">
+                </div>
+                <button type="submit" class="start-button">Start Contest</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Completion Modal -->
+    <div class="modal" id="completionModal">
+        <div class="modal-content">
+            <div style="font-size: 5em; margin-bottom: 20px;">🎉</div>
+            <h2>Congratulations!</h2>
+            <p style="font-size: 1.1em; color: #6c757d; margin-bottom: 10px;">Contest Completed!</p>
+            <div style="font-size: 3em; font-weight: 700; color: #28a745; margin: 20px 0;" id="finalScore">0 / 60</div>
+            <div style="margin: 20px 0;">
+                <p><strong>Your Rank:</strong> <span id="yourRank">--</span></p>
+                <p><strong>Accuracy:</strong> <span id="finalAccuracy">--</span></p>
+            </div>
+            <button class="start-button" onclick="location.reload()">View Leaderboard</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎯 SQL Contest Platform</h1>
+            <p style="font-size: 1.2em; opacity: 0.95;">Multi-User SQL Challenge</p>
+            <div class="live-indicator">
+                <div class="pulse"></div>
+                <span id="liveParticipants">-- Active Participants</span>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-label">⏱️ Time Remaining</div>
+                <div class="stat-value" id="timer">45:00</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">📊 Your Score</div>
+                <div class="stat-value" id="totalScore">0 / 60</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">✅ Completed</div>
+                <div class="stat-value" id="questionsCompleted">0 / 6</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🎯 Accuracy</div>
+                <div class="stat-value" id="accuracyRate">0%</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="questionsSection">
+                <!-- Questions will be loaded here -->
+            </div>
+
+            <div class="sidebar">
+                <!-- Live Leaderboard -->
+                <div class="widget">
+                    <div class="widget-title">🏆 Live Leaderboard</div>
+                    <div id="leaderboard">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Stats -->
+                <div class="widget">
+                    <div class="widget-title">📊 Platform Stats</div>
+                    <div id="platformStats">
+                        <p>Total Sessions: <strong id="totalSessions">--</strong></p>
+                        <p>Average Score: <strong id="avgScore">--</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        // Global state
+        let sessionToken = null;
+        let sessionId = null;
+        let participantId = null;
+        let timerInterval = null;
+        let timeRemaining = 45 * 60;
+        let completedQuestions = new Set();
+        let totalScore = 0;
+
+        // Questions data
+        const questions = [
+            {
+                number: 1,
+                title: "CREATE + CONSTRAINTS",
+                description: "Create a table <code>students</code> with:",
+                requirements: [
+                    "<code>student_id</code> as PRIMARY KEY (INT)",
+                    "<code>name</code> as NOT NULL (VARCHAR)",
+                    "<code>email</code> as UNIQUE (VARCHAR)",
+                    "<code>age</code> such that age must be 18 or above (CHECK constraint)"
+                ]
+            },
+            {
+                number: 2,
+                title: "SELECT + WHERE + LOGIC",
+                description: "Display names of students who:",
+                requirements: [
+                    "are older than 18 (age > 18)",
+                    "and whose email is not NULL"
+                ]
+            },
+            {
+                number: 3,
+                title: "AGGREGATE FUNCTIONS",
+                description: "Find the total number of students and the average age of students from the <code>students</code> table.",
+                requirements: []
+            },
+            {
+                number: 4,
+                title: "GROUP BY + HAVING",
+                description: "Display course names and number of students enrolled in each course, but show only those courses where more than 3 students are enrolled.",
+                requirements: ["Note: Assume there's an <code>enrollments</code> table with columns: <code>course_name</code> and <code>student_id</code>"]
+            },
+            {
+                number: 5,
+                title: "SUBQUERY",
+                description: "Display the names of students whose marks are greater than the average marks.",
+                requirements: ["Note: Assume the <code>students</code> table has a <code>marks</code> column."]
+            },
+            {
+                number: 6,
+                title: "VIEW",
+                description: "Create a VIEW named <code>eligible_students</code> that shows names of students who scored 40 or more marks.",
+                requirements: []
+            }
+        ];
+
+        // Initialize
+        window.onload = function() {
+            document.getElementById('startModal').classList.add('show');
+            loadLeaderboard();
+            loadLiveStats();
+            
+            // Refresh leaderboard every 10 seconds
+            setInterval(loadLeaderboard, 10000);
+            setInterval(loadLiveStats, 5000);
+        };
+
+        // Start contest
+        document.getElementById('startForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('participantName').value.trim();
+            const email = document.getElementById('participantEmail').value.trim();
+
+            if (!name || !email) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/contest/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionToken = data.sessionToken;
+                    sessionId = data.sessionId;
+                    participantId = data.participantId;
+                    
+                    document.getElementById('startModal').classList.remove('show');
+                    initializeContest();
+                } else {
+                    alert('Failed to start contest: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error starting contest:', error);
+                alert('Failed to connect to server. Please make sure the server is running.');
+            }
+        });
+
+        function initializeContest() {
+            renderQuestions();
+            startTimer();
+            loadProgress();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsSection');
+            container.innerHTML = questions.map(q => `
+                <div class="question-card">
+                    <div class="question-header">
+                        <span class="question-number">Question ${q.number}</span>
+                        <span class="badge points-badge">+10 Points</span>
+                    </div>
+                    <div class="problem-statement">
+                        <h3>${q.title}</h3>
+                        <p><strong>Problem Statement:</strong></p>
+                        <p>${q.description}</p>
+                        ${q.requirements.length > 0 ? `
+                            <ul>
+                                ${q.requirements.map(req => `<li>${req}</li>`).join('')}
+                            </ul>
+                        ` : ''}
+                    </div>
+                    <textarea id="q${q.number}" placeholder="Write your SQL query here..."></textarea>
+                    <div class="button-group">
+                        <button class="submit-btn" onclick="submitAnswer(${q.number})">▶️ Submit Answer</button>
+                    </div>
+                    <div class="result" id="result${q.number}"></div>
+                </div>
+            `).join('');
+        }
+
+        async function submitAnswer(questionNum) {
+            const query = document.getElementById(`q${questionNum}`).value.trim();
+            const resultDiv = document.getElementById(`result${questionNum}`);
+
+            if (!query) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Please write a query first!';
+                return;
+            }
+
+            const isCorrect = validateQuery(questionNum, query);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/contest/submit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionToken,
+                        questionNumber: questionNum,
+                        query,
+                        isCorrect,
+                        timeTaken: (45 * 60 - timeRemaining) * 1000
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (isCorrect) {
+                        resultDiv.className = 'result success';
+                        resultDiv.innerHTML = '✅ Correct! Well done! (+10 points)';
+                        
+                        if (!completedQuestions.has(questionNum)) {
+                            completedQuestions.add(questionNum);
+                            totalScore = data.score;
+                            updateUI();
+                            
+                            if (completedQuestions.size === 6) {
+                                setTimeout(endContest, 1500);
+                            }
+                        }
+                    } else {
+                        resultDiv.className = 'result error';
+                        resultDiv.innerHTML = '❌ Not quite right. Check your syntax and try again!';
+                    }
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = '❌ ' + data.error;
+                }
+
+                loadLeaderboard();
+            } catch (error) {
+                console.error('Error submitting answer:', error);
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = '❌ Failed to submit. Please try again.';
+            }
+        }
+
+        function validateQuery(questionNum, query) {
+            const normalized = query.toUpperCase().replace(/\s+/g, ' ').trim();
+
+            switch(questionNum) {
+                case 1:
+                    return normalized.includes('CREATE TABLE') &&
+                           normalized.includes('STUDENTS') &&
+                           normalized.includes('PRIMARY KEY') &&
+                           normalized.includes('NOT NULL') &&
+                           normalized.includes('UNIQUE') &&
+                           normalized.includes('CHECK') &&
+                           (normalized.includes('>=18') || normalized.includes('>= 18'));
+                
+                case 2:
+                    return normalized.includes('SELECT') &&
+                           normalized.includes('NAME') &&
+                           normalized.includes('FROM') &&
+                           normalized.includes('STUDENTS') &&
+                           normalized.includes('AGE>18') ||normalized.includes('AGE > 18') &&
+                           (normalized.includes('EMAIL IS NOT NULL') || normalized.includes('EMAILISNOT NULL'));
+                
+                case 3:
+                    return normalized.includes('COUNT(*)') &&
+                           normalized.includes('AVG(AGE)') &&
+                           normalized.includes('FROM') &&
+                           normalized.includes('STUDENTS');
+                
+                case 4:
+                    return normalized.includes('SELECT') &&
+                           normalized.includes('COURSE_NAME') &&
+                           normalized.includes('COUNT') &&
+                           normalized.includes('GROUP BY') &&
+                           normalized.includes('HAVING') &&
+                           normalized.includes('>3');
+                
+                case 5:
+                    return normalized.includes('SELECT') &&
+                           normalized.includes('NAME') &&
+                           normalized.includes('WHERE') &&
+                           normalized.includes('MARKS>') &&
+                           normalized.includes('AVG(MARKS)');
+                
+                case 6:
+                    return normalized.includes('CREATE VIEW') &&
+                           normalized.includes('ELIGIBLE_STUDENTS') &&
+                           normalized.includes('AS') &&
+                           normalized.includes('SELECT') &&
+                           (normalized.includes('MARKS>=40') || normalized.includes('MARKS >= 40'));
+                
+                default:
+                    return false;
+            }
+        }
+
+        async function loadProgress() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/contest/progress/${sessionToken}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    totalScore = data.session.total_score;
+                    completedQuestions = new Set(data.completedQuestions);
+                    updateUI();
+                }
+            } catch (error) {
+                console.error('Error loading progress:', error);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/leaderboard?limit=10`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const container = document.getElementById('leaderboard');
+                    container.innerHTML = data.leaderboard.map(item => `
+                        <div class="leaderboard-item">
+                            <div>
+                                <span class="leaderboard-rank">#${item.rank}</span>
+                                <strong>${item.name}</strong>
+                            </div>
+                            <div>
+                                <span style="color: #28a745; font-weight: 600;">${item.score} pts</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+            }
+        }
+
+        async function loadLiveStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/stats/live`);
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('liveParticipants').textContent = 
+                        `${data.stats.activeParticipants} Active Participants`;
+                    document.getElementById('totalSessions').textContent = data.stats.totalSessions;
+                    document.getElementById('avgScore').textContent = 
+                        Math.round(data.stats.averageScore) + ' pts';
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    endContest();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function updateUI() {
+            document.getElementById('totalScore').textContent = `${totalScore} / 60`;
+            document.getElementById('questionsCompleted').textContent = `${completedQuestions.size} / 6`;
+        }
+
+        async function endContest() {
+            clearInterval(timerInterval);
+
+            const timeTaken = (45 * 60 - timeRemaining) * 1000;
+            const accuracy = totalScore / 60 * 100;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/contest/end`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionToken,
+                        timeTaken,
+                        accuracy
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('finalScore').textContent = `${totalScore} / 60`;
+                    document.getElementById('finalAccuracy').textContent = accuracy.toFixed(1) + '%';
+                    
+                    // Reload leaderboard to get rank
+                    await loadLeaderboard();
+                    
+                    document.getElementById('completionModal').classList.add('show');
+                }
+            } catch (error) {
+                console.error('Error ending contest:', error);
+            }
+        }
+    </script>
+</body>
+</html>
