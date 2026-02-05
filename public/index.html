@@ -3,9 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL Contest - Multi-User Platform</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>SQL Mastery Contest - Elite Coding Challenge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --premium-gold: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            --dark-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 30px 90px rgba(0, 0, 0, 0.25);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,89 +28,190 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
         }
 
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.25);
-            overflow: hidden;
+            max-width: 1600px;
+            margin: 20px auto;
+            position: relative;
+            z-index: 1;
         }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 30px;
+        .header-wrapper {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             position: relative;
             overflow: hidden;
         }
 
+        .header-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .header {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+
         .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            font-weight: 800;
+            font-size: 4em;
+            margin-bottom: 15px;
+            font-weight: 900;
+            background: linear-gradient(to right, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            letter-spacing: -2px;
+        }
+
+        .header-subtitle {
+            font-size: 1.4em;
+            opacity: 0.95;
+            font-weight: 300;
+            letter-spacing: 1px;
         }
 
         .live-indicator {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            margin-top: 10px;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 30px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
 
         .pulse {
-            width: 10px;
-            height: 10px;
-            background: #00ff00;
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
             border-radius: 50%;
+            box-shadow: 0 0 20px #00ff88;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.6; }
         }
 
         .stats-bar {
-            background: #f8f9fa;
-            padding: 20px 30px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            border-bottom: 2px solid #e9ecef;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 35px;
         }
 
-        .stat-item {
-            text-align: center;
-            padding: 15px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 25px 70px rgba(102, 126, 234, 0.4);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
         }
 
         .stat-label {
-            font-size: 0.85em;
-            color: #6c757d;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.8);
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
         }
 
         .stat-value {
-            font-size: 2em;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2.8em;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            letter-spacing: -1px;
         }
 
         .modal {
@@ -106,247 +221,441 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
+            animation: fadeIn 0.3s;
         }
 
         .modal.show {
             display: flex;
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         .modal-content {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 500px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            padding: 60px;
+            border-radius: 35px;
+            max-width: 550px;
             width: 90%;
             text-align: center;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 6em;
+            margin-bottom: 25px;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
 
         .modal-content h2 {
-            font-size: 2.5em;
+            font-size: 3em;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .modal-subtitle {
+            font-size: 1.2em;
+            color: #6c757d;
+            margin-bottom: 40px;
+            line-height: 1.6;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             text-align: left;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
+            margin-bottom: 10px;
+            font-weight: 700;
             color: #2c3e50;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 1em;
+            padding: 18px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1.1em;
             font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            background: white;
         }
 
         .form-group input:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
         }
 
-        .start-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .premium-button {
+            background: var(--primary-gradient);
             color: white;
-            padding: 15px 40px;
-            font-size: 1.2em;
+            padding: 20px 50px;
+            font-size: 1.3em;
             border: none;
-            border-radius: 10px;
+            border-radius: 18px;
             cursor: pointer;
-            font-weight: 700;
+            font-weight: 800;
             width: 100%;
-            transition: all 0.3s;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .start-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        .premium-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .premium-button:hover::before {
+            left: 100%;
+        }
+
+        .premium-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.6);
         }
 
         .content {
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 1fr 400px;
             gap: 30px;
-            padding: 30px;
         }
 
         .question-card {
-            background: #ffffff;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 25px;
-            border: 2px solid #e9ecef;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--primary-gradient);
+            border-radius: 30px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s;
+        }
+
+        .question-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 80px rgba(102, 126, 234, 0.3);
+        }
+
+        .question-card:hover::before {
+            opacity: 0.1;
         }
 
         .question-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .question-number {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1.1em;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
             padding: 10px 20px;
             border-radius: 25px;
             font-weight: 700;
-        }
-
-        .badge {
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: 600;
-        }
-
-        .points-badge {
-            background: #d4edda;
-            color: #155724;
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
         }
 
         .problem-statement {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
         }
 
         .problem-statement h3 {
-            color: #2c3e50;
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .problem-statement p {
+            line-height: 1.8;
             margin-bottom: 12px;
-            font-size: 1.3em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .problem-statement ul {
+            margin-left: 20px;
+            margin-top: 15px;
+        }
+
+        .problem-statement li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.85);
         }
 
         .problem-statement code {
-            background: #e9ecef;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            color: #e83e8c;
+            background: rgba(102, 126, 234, 0.3);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #4facfe;
+            font-weight: 600;
+            border: 1px solid rgba(79, 172, 254, 0.3);
         }
 
         textarea {
             width: 100%;
-            min-height: 150px;
-            padding: 15px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
+            min-height: 180px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
             resize: vertical;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            transition: all 0.3s;
         }
 
         textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
         }
 
         .button-group {
             display: flex;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        button {
-            padding: 12px 28px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            font-weight: 600;
+            gap: 15px;
+            margin-top: 20px;
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
             flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 50px rgba(79, 172, 254, 0.6);
         }
 
         .result {
-            margin-top: 15px;
-            padding: 18px;
-            border-radius: 10px;
-            font-weight: 600;
+            margin-top: 20px;
+            padding: 20px 25px;
+            border-radius: 18px;
+            font-weight: 700;
             display: none;
+            animation: slideIn 0.4s;
+            font-size: 1.05em;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .result.success {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #28a745;
-            display: block;
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.2) 0%, rgba(34, 139, 34, 0.2) 100%);
+            color: #00ff88;
+            border: 2px solid #00ff88;
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
         }
 
         .result.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #dc3545;
-            display: block;
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(197, 48, 48, 0.2) 100%);
+            color: #ff6b9d;
+            border: 2px solid #ff6b9d;
+            box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
         }
 
         .widget {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 35px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.4s;
+        }
+
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 70px rgba(102, 126, 234, 0.3);
         }
 
         .widget-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: #2c3e50;
+            font-size: 1.5em;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .leaderboard-item {
             display: flex;
             justify-content: space-between;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            align-items: center;
+            padding: 18px;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
         .leaderboard-rank {
-            font-weight: 700;
-            color: #667eea;
+            font-weight: 900;
+            font-size: 1.3em;
+            background: var(--premium-gold);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            min-width: 40px;
+        }
+
+        .leaderboard-name {
+            color: white;
+            font-weight: 600;
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .leaderboard-score {
+            color: #00ff88;
+            font-weight: 800;
+            font-size: 1.1em;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
         }
 
         .loading {
             text-align: center;
-            padding: 20px;
-            color: #6c757d;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #4facfe;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 15px;
         }
 
         @keyframes spin {
@@ -354,41 +663,88 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px;
+        .platform-stats p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+            font-size: 1.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        @media (max-width: 1024px) {
+        .platform-stats strong {
+            color: #4facfe;
+            font-weight: 800;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 1200px) {
             .content {
                 grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 3em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                padding: 40px 30px;
+            }
+        }
+
+        /* Completion celebration effect */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles"></div>
+
     <!-- Start Modal -->
     <div class="modal" id="startModal">
         <div class="modal-content">
-            <div style="font-size: 5em; margin-bottom: 20px;">🏆</div>
-            <h2>SQL Hands-On Contest</h2>
-            <p style="font-size: 1.1em; color: #6c757d; margin-bottom: 30px;">
-                Join the global SQL challenge!<br>
-                Compete with others in real-time.
+            <div class="modal-icon">🏆</div>
+            <h2>SQL Elite Contest</h2>
+            <p class="modal-subtitle">
+                Join the most prestigious SQL challenge.<br>
+                Compete globally. Master your skills. Claim victory.
             </p>
             <form id="startForm">
                 <div class="form-group">
-                    <label for="participantName">Full Name *</label>
+                    <label for="participantName">Full Name</label>
                     <input type="text" id="participantName" required placeholder="Enter your full name">
                 </div>
                 <div class="form-group">
-                    <label for="participantEmail">Email *</label>
+                    <label for="participantEmail">Email Address</label>
                     <input type="email" id="participantEmail" required placeholder="your.email@example.com">
                 </div>
-                <button type="submit" class="start-button">Start Contest</button>
+                <button type="submit" class="premium-button">Begin Challenge</button>
             </form>
         </div>
     </div>
@@ -396,43 +752,49 @@
     <!-- Completion Modal -->
     <div class="modal" id="completionModal">
         <div class="modal-content">
-            <div style="font-size: 5em; margin-bottom: 20px;">🎉</div>
-            <h2>Congratulations!</h2>
-            <p style="font-size: 1.1em; color: #6c757d; margin-bottom: 10px;">Contest Completed!</p>
-            <div style="font-size: 3em; font-weight: 700; color: #28a745; margin: 20px 0;" id="finalScore">0 / 60</div>
-            <div style="margin: 20px 0;">
-                <p><strong>Your Rank:</strong> <span id="yourRank">--</span></p>
-                <p><strong>Accuracy:</strong> <span id="finalAccuracy">--</span></p>
+            <div class="modal-icon">🎉</div>
+            <h2>Victory!</h2>
+            <p class="modal-subtitle">Outstanding performance in the SQL Elite Contest</p>
+            <div style="font-size: 3.5em; font-weight: 900; background: var(--premium-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 25px 0;" id="finalScore">0 / 60</div>
+            <div style="margin: 25px 0; color: #2c3e50;">
+                <p style="margin: 10px 0;"><strong>Global Rank:</strong> <span id="yourRank" style="color: #667eea; font-weight: 800;">--</span></p>
+                <p style="margin: 10px 0;"><strong>Accuracy Rate:</strong> <span id="finalAccuracy" style="color: #00ff88; font-weight: 800;">--</span></p>
             </div>
-            <button class="start-button" onclick="location.reload()">View Leaderboard</button>
+            <button class="premium-button" onclick="location.reload()">View Full Leaderboard</button>
         </div>
     </div>
 
     <div class="container">
-        <div class="header">
-            <h1>🎯 SQL Contest Platform</h1>
-            <p style="font-size: 1.2em; opacity: 0.95;">Multi-User SQL Challenge</p>
-            <div class="live-indicator">
-                <div class="pulse"></div>
-                <span id="liveParticipants">-- Active Participants</span>
+        <div class="header-wrapper">
+            <div class="header">
+                <h1>⚡ SQL Mastery Contest</h1>
+                <p class="header-subtitle">Elite Multi-User SQL Challenge Platform</p>
+                <div class="live-indicator">
+                    <div class="pulse"></div>
+                    <span id="liveParticipants" style="font-weight: 700;">-- Active Challengers</span>
+                </div>
             </div>
         </div>
 
         <div class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-label">⏱️ Time Remaining</div>
+            <div class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-label">Time Remaining</div>
                 <div class="stat-value" id="timer">45:00</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-label">📊 Your Score</div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-label">Your Score</div>
                 <div class="stat-value" id="totalScore">0 / 60</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-label">✅ Completed</div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Completed</div>
                 <div class="stat-value" id="questionsCompleted">0 / 6</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-label">🎯 Accuracy</div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-label">Accuracy</div>
                 <div class="stat-value" id="accuracyRate">0%</div>
             </div>
         </div>
@@ -449,17 +811,27 @@
                     <div id="leaderboard">
                         <div class="loading">
                             <div class="spinner"></div>
-                            <p>Loading...</p>
+                            <p>Loading rankings...</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Live Stats -->
                 <div class="widget">
-                    <div class="widget-title">📊 Platform Stats</div>
-                    <div id="platformStats">
-                        <p>Total Sessions: <strong id="totalSessions">--</strong></p>
-                        <p>Average Score: <strong id="avgScore">--</strong></p>
+                    <div class="widget-title">📊 Platform Analytics</div>
+                    <div class="platform-stats" id="platformStats">
+                        <p>
+                            <span>Total Sessions</span>
+                            <strong id="totalSessions">--</strong>
+                        </p>
+                        <p>
+                            <span>Average Score</span>
+                            <strong id="avgScore">--</strong>
+                        </p>
+                        <p>
+                            <span>Top Score</span>
+                            <strong style="color: #f6d365;">60 pts</strong>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -468,7 +840,7 @@
 
     <script>
         // Configuration
-const API_BASE_URL = '/api';
+        const API_BASE_URL = '/api';
         
         // Global state
         let sessionToken = null;
@@ -479,61 +851,74 @@ const API_BASE_URL = '/api';
         let completedQuestions = new Set();
         let totalScore = 0;
 
+        // Generate particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
         // Questions data
         const questions = [
             {
                 number: 1,
                 title: "CREATE + CONSTRAINTS",
-                description: "Create a table <code>students</code> with:",
+                description: "Create a table <code>students</code> with the following specifications:",
                 requirements: [
                     "<code>student_id</code> as PRIMARY KEY (INT)",
                     "<code>name</code> as NOT NULL (VARCHAR)",
                     "<code>email</code> as UNIQUE (VARCHAR)",
-                    "<code>age</code> such that age must be 18 or above (CHECK constraint)"
+                    "<code>age</code> with CHECK constraint (age >= 18)"
                 ]
             },
             {
                 number: 2,
                 title: "SELECT + WHERE + LOGIC",
-                description: "Display names of students who:",
+                description: "Display names of students matching these criteria:",
                 requirements: [
-                    "are older than 18 (age > 18)",
-                    "and whose email is not NULL"
+                    "Students older than 18 (age > 18)",
+                    "Email field is not NULL"
                 ]
             },
             {
                 number: 3,
                 title: "AGGREGATE FUNCTIONS",
-                description: "Find the total number of students and the average age of students from the <code>students</code> table.",
+                description: "Calculate the total number of students and their average age from the <code>students</code> table.",
                 requirements: []
             },
             {
                 number: 4,
                 title: "GROUP BY + HAVING",
-                description: "Display course names and number of students enrolled in each course, but show only those courses where more than 3 students are enrolled.",
-                requirements: ["Note: Assume there's an <code>enrollments</code> table with columns: <code>course_name</code> and <code>student_id</code>"]
+                description: "Display course names and enrollment count, showing only courses with more than 3 students enrolled.",
+                requirements: ["Assume an <code>enrollments</code> table exists with columns: <code>course_name</code> and <code>student_id</code>"]
             },
             {
                 number: 5,
                 title: "SUBQUERY",
-                description: "Display the names of students whose marks are greater than the average marks.",
-                requirements: ["Note: Assume the <code>students</code> table has a <code>marks</code> column."]
+                description: "Display names of students whose marks exceed the class average.",
+                requirements: ["Assume the <code>students</code> table includes a <code>marks</code> column"]
             },
             {
                 number: 6,
-                title: "VIEW",
-                description: "Create a VIEW named <code>eligible_students</code> that shows names of students who scored 40 or more marks.",
+                title: "VIEW CREATION",
+                description: "Create a VIEW named <code>eligible_students</code> showing students who scored 40 or more marks.",
                 requirements: []
             }
         ];
 
         // Initialize
         window.onload = function() {
+            createParticles();
             document.getElementById('startModal').classList.add('show');
             loadLeaderboard();
             loadLiveStats();
             
-            // Refresh leaderboard every 10 seconds
             setInterval(loadLeaderboard, 10000);
             setInterval(loadLiveStats, 5000);
         };
@@ -571,7 +956,7 @@ const API_BASE_URL = '/api';
                 }
             } catch (error) {
                 console.error('Error starting contest:', error);
-                alert('Failed to connect to server. Please make sure the server is running.');
+                alert('Failed to connect to server. Please ensure the backend is running on port 3000.');
             }
         });
 
@@ -587,11 +972,11 @@ const API_BASE_URL = '/api';
                 <div class="question-card">
                     <div class="question-header">
                         <span class="question-number">Question ${q.number}</span>
-                        <span class="badge points-badge">+10 Points</span>
+                        <span class="points-badge">+10 Points</span>
                     </div>
                     <div class="problem-statement">
                         <h3>${q.title}</h3>
-                        <p><strong>Problem Statement:</strong></p>
+                        <p><strong>Challenge:</strong></p>
                         <p>${q.description}</p>
                         ${q.requirements.length > 0 ? `
                             <ul>
@@ -599,9 +984,10 @@ const API_BASE_URL = '/api';
                             </ul>
                         ` : ''}
                     </div>
-                    <textarea id="q${q.number}" placeholder="Write your SQL query here..."></textarea>
+                    <textarea id="q${q.number}" placeholder="-- Write your SQL query here
+-- Be precise, be accurate, be brilliant..."></textarea>
                     <div class="button-group">
-                        <button class="submit-btn" onclick="submitAnswer(${q.number})">▶️ Submit Answer</button>
+                        <button class="submit-btn" onclick="submitAnswer(${q.number})">🚀 Submit Solution</button>
                     </div>
                     <div class="result" id="result${q.number}"></div>
                 </div>
@@ -614,7 +1000,8 @@ const API_BASE_URL = '/api';
 
             if (!query) {
                 resultDiv.className = 'result error';
-                resultDiv.innerHTML = '❌ Please write a query first!';
+                resultDiv.innerHTML = '❌ Query cannot be empty. Write your solution first!';
+                resultDiv.style.display = 'block';
                 return;
             }
 
@@ -638,7 +1025,8 @@ const API_BASE_URL = '/api';
                 if (data.success) {
                     if (isCorrect) {
                         resultDiv.className = 'result success';
-                        resultDiv.innerHTML = '✅ Correct! Well done! (+10 points)';
+                        resultDiv.innerHTML = '✅ Perfect! Outstanding work! (+10 points)';
+                        resultDiv.style.display = 'block';
                         
                         if (!completedQuestions.has(questionNum)) {
                             completedQuestions.add(questionNum);
@@ -646,23 +1034,29 @@ const API_BASE_URL = '/api';
                             updateUI();
                             
                             if (completedQuestions.size === 6) {
-                                setTimeout(endContest, 1500);
+                                setTimeout(() => {
+                                    createConfetti();
+                                    endContest();
+                                }, 1500);
                             }
                         }
                     } else {
                         resultDiv.className = 'result error';
-                        resultDiv.innerHTML = '❌ Not quite right. Check your syntax and try again!';
+                        resultDiv.innerHTML = '❌ Not quite right. Review the requirements and try again!';
+                        resultDiv.style.display = 'block';
                     }
                 } else {
                     resultDiv.className = 'result error';
                     resultDiv.innerHTML = '❌ ' + data.error;
+                    resultDiv.style.display = 'block';
                 }
 
                 loadLeaderboard();
             } catch (error) {
                 console.error('Error submitting answer:', error);
                 resultDiv.className = 'result error';
-                resultDiv.innerHTML = '❌ Failed to submit. Please try again.';
+                resultDiv.innerHTML = '❌ Connection error. Please try again.';
+                resultDiv.style.display = 'block';
             }
         }
 
@@ -684,7 +1078,7 @@ const API_BASE_URL = '/api';
                            normalized.includes('NAME') &&
                            normalized.includes('FROM') &&
                            normalized.includes('STUDENTS') &&
-                           normalized.includes('AGE>18') ||normalized.includes('AGE > 18') &&
+                           (normalized.includes('AGE>18') || normalized.includes('AGE > 18')) &&
                            (normalized.includes('EMAIL IS NOT NULL') || normalized.includes('EMAILISNOT NULL'));
                 
                 case 3:
@@ -744,13 +1138,9 @@ const API_BASE_URL = '/api';
                     const container = document.getElementById('leaderboard');
                     container.innerHTML = data.leaderboard.map(item => `
                         <div class="leaderboard-item">
-                            <div>
-                                <span class="leaderboard-rank">#${item.rank}</span>
-                                <strong>${item.name}</strong>
-                            </div>
-                            <div>
-                                <span style="color: #28a745; font-weight: 600;">${item.score} pts</span>
-                            </div>
+                            <span class="leaderboard-rank">#${item.rank}</span>
+                            <span class="leaderboard-name">${item.name}</span>
+                            <span class="leaderboard-score">${item.score} pts</span>
                         </div>
                     `).join('');
                 }
@@ -766,7 +1156,7 @@ const API_BASE_URL = '/api';
 
                 if (data.success) {
                     document.getElementById('liveParticipants').textContent = 
-                        `${data.stats.activeParticipants} Active Participants`;
+                        `${data.stats.activeParticipants} Active Challengers`;
                     document.getElementById('totalSessions').textContent = data.stats.totalSessions;
                     document.getElementById('avgScore').textContent = 
                         Math.round(data.stats.averageScore) + ' pts';
@@ -797,13 +1187,27 @@ const API_BASE_URL = '/api';
         function updateUI() {
             document.getElementById('totalScore').textContent = `${totalScore} / 60`;
             document.getElementById('questionsCompleted').textContent = `${completedQuestions.size} / 6`;
+            const accuracy = completedQuestions.size > 0 ? ((totalScore / (completedQuestions.size * 10)) * 100).toFixed(0) : 0;
+            document.getElementById('accuracyRate').textContent = accuracy + '%';
+        }
+
+        function createConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
         }
 
         async function endContest() {
             clearInterval(timerInterval);
 
             const timeTaken = (45 * 60 - timeRemaining) * 1000;
-            const accuracy = totalScore / 60 * 100;
+            const accuracy = completedQuestions.size > 0 ? ((totalScore / (completedQuestions.size * 10)) * 100) : 0;
 
             try {
                 const response = await fetch(`${API_BASE_URL}/contest/end`, {
@@ -822,7 +1226,6 @@ const API_BASE_URL = '/api';
                     document.getElementById('finalScore').textContent = `${totalScore} / 60`;
                     document.getElementById('finalAccuracy').textContent = accuracy.toFixed(1) + '%';
                     
-                    // Reload leaderboard to get rank
                     await loadLeaderboard();
                     
                     document.getElementById('completionModal').classList.add('show');
