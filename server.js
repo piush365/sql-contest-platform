@@ -16,22 +16,10 @@ app.use(express.json());
 app.use(express.static('public'));
 
 /* =========================
-   MongoDB Connection
+   MongoDB URI
 ========================= */
-mongoose.set('bufferCommands', false);
-
 const MONGO_URI =
   process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sql_contest';
-
-mongoose.connect(MONGO_URI);
-
-mongoose.connection.once('open', () => {
-  console.log('✅ MongoDB connected');
-});
-
-mongoose.connection.on('error', err => {
-  console.error('❌ MongoDB error:', err);
-});
 
 /* =========================
    Schemas & Models
@@ -89,77 +77,64 @@ function generateSessionToken() {
    API ROUTES
 ========================= */
 
-/* Start Contest */
 app.post('/api/contest/start', async (req, res) => {
-  try {
-    const { name, email } = req.body;
-    if (!name) return res.status(400).json({ error: 'Name is required' });
+  const { name, email } = req.body;
+  if (!name) return res.status(400).json({ error: 'Name is required' });
 
-    let participant = await Participant.findOne({ email });
-    if (!participant) participant = await Participant.create({ name, email });
+  let participant = await Participant.findOne({ email });
+  if (!participant) participant = await Participant.create({ name, email });
 
-    const session = await Session.create({
-      participantId: participant._id,
-      sessionToken: generateSessionToken()
-    });
+  const session = await Session.create({
+    participantId: participant._id,
+    sessionToken: generateSessionToken()
+  });
 
-    res.json({
-      success: true,
-      sessionToken: session.sessionToken,
-      sessionId: session._id,
-      participantId: participant._id
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to start contest' });
-  }
+  res.json({
+    success: true,
+    sessionToken: session.sessionToken,
+    sessionId: session._id,
+    participantId: participant._id
+  });
 });
 
-/* Submit Answer */
 app.post('/api/contest/submit', async (req, res) => {
-  try {
-    const { sessionToken, questionNumber, query, isCorrect, timeTaken } = req.body;
+  const { sessionToken, questionNumber, query, isCorrect, timeTaken } = req.body;
 
-    const session = await Session.findOne({ sessionToken, status: 'active' });
-    if (!session) return res.status(404).json({ error: 'Invalid session' });
+  const session = await Session.findOne({ sessionToken, status: 'active' });
+  if (!session) return res.status(404).json({ error: 'Invalid session' });
 
-    const solved = await Attempt.findOne({
-      sessionId: session._id,
-      questionNumber,
-      isCorrect: true
-    });
+  const solved = await Attempt.findOne({
+    sessionId: session._id,
+    questionNumber,
+    isCorrect: true
+  });
 
-    if (solved) return res.json({ success: true, alreadyCompleted: true });
+  if (solved) return res.json({ success: true, alreadyCompleted: true });
 
-    await Attempt.create({
-      sessionId: session._id,
-      questionNumber,
-      query,
-      isCorrect,
-      timeTaken
-    });
+  await Attempt.create({
+    sessionId: session._id,
+    questionNumber,
+    query,
+    isCorrect,
+    timeTaken
+  });
 
-    if (isCorrect) {
-      await Session.updateOne(
-        { _id: session._id },
-        { $inc: { totalScore: 10, questionsCompleted: 1 } }
-      );
-    }
-
-    const updated = await Session.findById(session._id);
-
-    res.json({
-      success: true,
-      score: updated.totalScore,
-      questionsCompleted: updated.questionsCompleted
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Submit failed' });
+  if (isCorrect) {
+    await Session.updateOne(
+      { _id: session._id },
+      { $inc: { totalScore: 10, questionsCompleted: 1 } }
+    );
   }
+
+  const updated = await Session.findById(session._id);
+
+  res.json({
+    success: true,
+    score: updated.totalScore,
+    questionsCompleted: updated.questionsCompleted
+  });
 });
 
-/* Progress */
 app.get('/api/contest/progress/:sessionToken', async (req, res) => {
   const session = await Session.findOne({ sessionToken: req.params.sessionToken });
   if (!session) return res.status(404).json({ error: 'Session not found' });
@@ -177,7 +152,6 @@ app.get('/api/contest/progress/:sessionToken', async (req, res) => {
   });
 });
 
-/* End Contest */
 app.post('/api/contest/end', async (req, res) => {
   const { sessionToken, timeTaken, accuracy } = req.body;
 
@@ -203,7 +177,6 @@ app.post('/api/contest/end', async (req, res) => {
   res.json({ success: true, finalScore: session.totalScore });
 });
 
-/* Leaderboard */
 app.get('/api/leaderboard', async (req, res) => {
   const limit = Number(req.query.limit) || 10;
 
@@ -217,7 +190,6 @@ app.get('/api/leaderboard', async (req, res) => {
   });
 });
 
-/* Live Stats */
 app.get('/api/stats/live', async (req, res) => {
   const activeParticipants = await Session.countDocuments({ status: 'active' });
   const totalSessions = await Session.countDocuments();
@@ -237,12 +209,23 @@ app.get('/api/stats/live', async (req, res) => {
   });
 });
 
-/* Health */
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK' });
 });
 
-/* Start Server */
-app.listen(PORT, () => {
-  console.log(`🚀 SQL Contest Server running on http://localhost:${PORT}`);
-});
+/* =========================
+   CONNECT DB → START SERVER
+========================= */
+(async () => {
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log('✅ MongoDB connected');
+
+    app.listen(PORT, () => {
+      console.log(`🚀 SQL Contest Server running on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Failed to connect MongoDB', err);
+    process.exit(1);
+  }
+})();
