@@ -1,424 +1,302 @@
-// server.js - Node.js Backend for SQL Contest Platform
+// server.js - MongoDB Backend for SQL Contest Platform (Node 24+)
+
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+/* =========================
+   Middleware
+========================= */
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Initialize SQLite Database
-const db = new sqlite3.Database('./contest.db', (err) => {
-    if (err) {
-        console.error('Database connection error:', err);
-    } else {
-        console.log('Connected to SQLite database');
-        initializeDatabase();
-    }
+/* =========================
+   MongoDB Connection
+   (NO deprecated options)
+========================= */
+mongoose.connect('mongodb://127.0.0.1:27017/sql_contest');
+
+mongoose.connection.once('open', () => {
+  console.log('✅ MongoDB connected');
 });
 
-// Create database tables
-function initializeDatabase() {
-    db.run(`
-        CREATE TABLE IF NOT EXISTS participants (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            email TEXT UNIQUE,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
+mongoose.connection.on('error', err => {
+  console.error('❌ MongoDB error:', err);
+});
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS contest_sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            participant_id INTEGER,
-            session_token TEXT UNIQUE,
-            start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-            end_time DATETIME,
-            total_score INTEGER DEFAULT 0,
-            questions_completed INTEGER DEFAULT 0,
-            time_taken INTEGER,
-            accuracy REAL,
-            status TEXT DEFAULT 'active',
-            FOREIGN KEY (participant_id) REFERENCES participants(id)
-        )
-    `);
+/* =========================
+   Schemas & Models
+========================= */
+const ParticipantSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, unique: true },
+  createdAt: { type: Date, default: Date.now }
+});
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS question_attempts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id INTEGER,
-            question_number INTEGER,
-            query_submitted TEXT,
-            is_correct BOOLEAN,
-            attempts INTEGER DEFAULT 1,
-            time_taken INTEGER,
-            submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (session_id) REFERENCES contest_sessions(id)
-        )
-    `);
+const SessionSchema = new mongoose.Schema({
+  participantId: mongoose.Schema.Types.ObjectId,
+  sessionToken: { type: String, unique: true },
+  startTime: { type: Date, default: Date.now },
+  endTime: Date,
+  totalScore: { type: Number, default: 0 },
+  questionsCompleted: { type: Number, default: 0 },
+  timeTaken: Number,
+  accuracy: Number,
+  status: { type: String, default: 'active' }
+});
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS leaderboard (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            participant_id INTEGER,
-            session_id INTEGER,
-            score INTEGER,
-            time_taken INTEGER,
-            accuracy REAL,
-            completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (participant_id) REFERENCES participants(id),
-            FOREIGN KEY (session_id) REFERENCES contest_sessions(id)
-        )
-    `);
+const AttemptSchema = new mongoose.Schema({
+  sessionId: mongoose.Schema.Types.ObjectId,
+  questionNumber: Number,
+  query: String,
+  isCorrect: Boolean,
+  timeTaken: Number,
+  submittedAt: { type: Date, default: Date.now }
+});
 
-    console.log('Database tables initialized');
-}
+const LeaderboardSchema = new mongoose.Schema({
+  participantId: mongoose.Schema.Types.ObjectId,
+  name: String,
+  email: String,
+  score: Number,
+  timeTaken: Number,
+  accuracy: Number,
+  completedAt: { type: Date, default: Date.now }
+});
 
-// Generate unique session token
+const Participant = mongoose.model('Participant', ParticipantSchema);
+const Session = mongoose.model('Session', SessionSchema);
+const Attempt = mongoose.model('Attempt', AttemptSchema);
+const Leaderboard = mongoose.model('Leaderboard', LeaderboardSchema);
+
+/* =========================
+   Helper
+========================= */
 function generateSessionToken() {
-    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  return 'session_' + Date.now() + Math.random().toString(36).slice(2);
 }
 
-// API Routes
+/* =========================
+   API ROUTES
+========================= */
 
-// 1. Start Contest - Register participant and create session
-app.post('/api/contest/start', (req, res) => {
+/* 1️⃣ Start Contest */
+app.post('/api/contest/start', async (req, res) => {
+  try {
     const { name, email } = req.body;
+    if (!name) return res.status(400).json({ error: 'Name is required' });
 
-    if (!name) {
-        return res.status(400).json({ error: 'Name is required' });
+    let participant = await Participant.findOne({ email });
+    if (!participant) {
+      participant = await Participant.create({ name, email });
     }
 
-    // Insert or get participant
-    db.run(
-        'INSERT OR IGNORE INTO participants (name, email) VALUES (?, ?)',
-        [name, email],
-        function(err) {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
+    const session = await Session.create({
+      participantId: participant._id,
+      sessionToken: generateSessionToken()
+    });
 
-            // Get participant ID
-            db.get(
-                'SELECT id FROM participants WHERE name = ? AND email = ?',
-                [name, email],
-                (err, participant) => {
-                    if (err || !participant) {
-                        return res.status(500).json({ error: 'Failed to create participant' });
-                    }
-
-                    // Create session
-                    const sessionToken = generateSessionToken();
-                    db.run(
-                        'INSERT INTO contest_sessions (participant_id, session_token) VALUES (?, ?)',
-                        [participant.id, sessionToken],
-                        function(err) {
-                            if (err) {
-                                return res.status(500).json({ error: 'Failed to create session' });
-                            }
-
-                            res.json({
-                                success: true,
-                                sessionToken: sessionToken,
-                                sessionId: this.lastID,
-                                participantId: participant.id,
-                                message: 'Contest started successfully'
-                            });
-                        }
-                    );
-                }
-            );
-        }
-    );
+    res.json({
+      success: true,
+      sessionToken: session.sessionToken,
+      sessionId: session._id,
+      participantId: participant._id
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to start contest' });
+  }
 });
 
-// 2. Submit Answer
-app.post('/api/contest/submit', (req, res) => {
+/* 2️⃣ Submit Answer */
+app.post('/api/contest/submit', async (req, res) => {
+  try {
     const { sessionToken, questionNumber, query, isCorrect, timeTaken } = req.body;
 
     if (!sessionToken || !questionNumber || !query) {
-        return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Get session
-    db.get(
-        'SELECT id, total_score, questions_completed FROM contest_sessions WHERE session_token = ? AND status = "active"',
-        [sessionToken],
-        (err, session) => {
-            if (err || !session) {
-                return res.status(404).json({ error: 'Invalid or expired session' });
-            }
+    const session = await Session.findOne({ sessionToken, status: 'active' });
+    if (!session) {
+      return res.status(404).json({ error: 'Invalid or expired session' });
+    }
 
-            // Check if question already answered correctly
-            db.get(
-                'SELECT id, is_correct FROM question_attempts WHERE session_id = ? AND question_number = ? AND is_correct = 1',
-                [session.id, questionNumber],
-                (err, existingAttempt) => {
-                    if (existingAttempt) {
-                        return res.json({
-                            success: true,
-                            message: 'Question already completed',
-                            alreadyCompleted: true
-                        });
-                    }
+    const alreadySolved = await Attempt.findOne({
+      sessionId: session._id,
+      questionNumber,
+      isCorrect: true
+    });
 
-                    // Insert attempt
-                    db.run(
-                        'INSERT INTO question_attempts (session_id, question_number, query_submitted, is_correct, time_taken) VALUES (?, ?, ?, ?, ?)',
-                        [session.id, questionNumber, query, isCorrect ? 1 : 0, timeTaken],
-                        function(err) {
-                            if (err) {
-                                return res.status(500).json({ error: 'Failed to save attempt' });
-                            }
+    if (alreadySolved) {
+      return res.json({ success: true, alreadyCompleted: true });
+    }
 
-                            // Update session if correct
-                            if (isCorrect) {
-                                const newScore = session.total_score + 10;
-                                const newCompleted = session.questions_completed + 1;
+    await Attempt.create({
+      sessionId: session._id,
+      questionNumber,
+      query,
+      isCorrect,
+      timeTaken
+    });
 
-                                db.run(
-                                    'UPDATE contest_sessions SET total_score = ?, questions_completed = ? WHERE id = ?',
-                                    [newScore, newCompleted, session.id],
-                                    (err) => {
-                                        if (err) {
-                                            return res.status(500).json({ error: 'Failed to update session' });
-                                        }
+    if (isCorrect) {
+      await Session.updateOne(
+        { _id: session._id },
+        { $inc: { totalScore: 10, questionsCompleted: 1 } }
+      );
+    }
 
-                                        res.json({
-                                            success: true,
-                                            message: 'Answer submitted successfully',
-                                            score: newScore,
-                                            questionsCompleted: newCompleted
-                                        });
-                                    }
-                                );
-                            } else {
-                                res.json({
-                                    success: true,
-                                    message: 'Answer submitted',
-                                    score: session.total_score,
-                                    questionsCompleted: session.questions_completed
-                                });
-                            }
-                        }
-                    );
-                }
-            );
-        }
-    );
+    const updated = await Session.findById(session._id);
+
+    res.json({
+      success: true,
+      score: updated.totalScore,
+      questionsCompleted: updated.questionsCompleted
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to submit answer' });
+  }
 });
 
-// 3. Get Session Progress
-app.get('/api/contest/progress/:sessionToken', (req, res) => {
-    const { sessionToken } = req.params;
+/* 3️⃣ Session Progress */
+app.get('/api/contest/progress/:sessionToken', async (req, res) => {
+  try {
+    const session = await Session.findOne({ sessionToken: req.params.sessionToken });
+    if (!session) return res.status(404).json({ error: 'Session not found' });
 
-    db.get(
-        'SELECT * FROM contest_sessions WHERE session_token = ?',
-        [sessionToken],
-        (err, session) => {
-            if (err || !session) {
-                return res.status(404).json({ error: 'Session not found' });
-            }
+    const attempts = await Attempt.find({ sessionId: session._id });
 
-            // Get all attempts for this session
-            db.all(
-                'SELECT * FROM question_attempts WHERE session_id = ? ORDER BY submitted_at DESC',
-                [session.id],
-                (err, attempts) => {
-                    if (err) {
-                        return res.status(500).json({ error: 'Failed to fetch attempts' });
-                    }
+    const accuracy = attempts.length
+      ? ((attempts.filter(a => a.isCorrect).length / attempts.length) * 100).toFixed(1)
+      : 0;
 
-                    // Calculate accuracy
-                    const totalAttempts = attempts.length;
-                    const correctAttempts = attempts.filter(a => a.is_correct).length;
-                    const accuracy = totalAttempts > 0 ? (correctAttempts / totalAttempts * 100).toFixed(1) : 0;
-
-                    res.json({
-                        success: true,
-                        session: {
-                            ...session,
-                            accuracy: accuracy
-                        },
-                        attempts: attempts,
-                        completedQuestions: attempts
-                            .filter(a => a.is_correct)
-                            .map(a => a.question_number)
-                    });
-                }
-            );
-        }
-    );
+    res.json({
+      success: true,
+      session: { ...session.toObject(), accuracy },
+      completedQuestions: attempts
+        .filter(a => a.isCorrect)
+        .map(a => a.questionNumber)
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch progress' });
+  }
 });
 
-// 4. End Contest
-app.post('/api/contest/end', (req, res) => {
+/* 4️⃣ End Contest */
+app.post('/api/contest/end', async (req, res) => {
+  try {
     const { sessionToken, timeTaken, accuracy } = req.body;
 
-    if (!sessionToken) {
-        return res.status(400).json({ error: 'Session token required' });
-    }
+    const session = await Session.findOne({ sessionToken });
+    if (!session) return res.status(404).json({ error: 'Session not found' });
 
-    db.get(
-        'SELECT cs.*, p.id as participant_id FROM contest_sessions cs JOIN participants p ON cs.participant_id = p.id WHERE cs.session_token = ?',
-        [sessionToken],
-        (err, session) => {
-            if (err || !session) {
-                return res.status(404).json({ error: 'Session not found' });
-            }
+    const participant = await Participant.findById(session.participantId);
 
-            // Update session
-            db.run(
-                'UPDATE contest_sessions SET end_time = CURRENT_TIMESTAMP, time_taken = ?, accuracy = ?, status = "completed" WHERE session_token = ?',
-                [timeTaken, accuracy, sessionToken],
-                (err) => {
-                    if (err) {
-                        return res.status(500).json({ error: 'Failed to end contest' });
-                    }
-
-                    // Add to leaderboard
-                    db.run(
-                        'INSERT INTO leaderboard (participant_id, session_id, score, time_taken, accuracy) VALUES (?, ?, ?, ?, ?)',
-                        [session.participant_id, session.id, session.total_score, timeTaken, accuracy],
-                        (err) => {
-                            if (err) {
-                                console.error('Failed to add to leaderboard:', err);
-                            }
-
-                            res.json({
-                                success: true,
-                                message: 'Contest ended successfully',
-                                finalScore: session.total_score
-                            });
-                        }
-                    );
-                }
-            );
-        }
+    await Session.updateOne(
+      { _id: session._id },
+      {
+        status: 'completed',
+        endTime: new Date(),
+        timeTaken,
+        accuracy
+      }
     );
-});
 
-// 5. Get Leaderboard
-app.get('/api/leaderboard', (req, res) => {
-    const limit = req.query.limit || 10;
-
-    db.all(
-        `SELECT 
-            l.score, 
-            l.time_taken, 
-            l.accuracy, 
-            l.completed_at,
-            p.name,
-            p.email
-         FROM leaderboard l
-         JOIN participants p ON l.participant_id = p.id
-         ORDER BY l.score DESC, l.time_taken ASC
-         LIMIT ?`,
-        [limit],
-        (err, rows) => {
-            if (err) {
-                return res.status(500).json({ error: 'Failed to fetch leaderboard' });
-            }
-
-            res.json({
-                success: true,
-                leaderboard: rows.map((row, index) => ({
-                    rank: index + 1,
-                    ...row
-                }))
-            });
-        }
-    );
-});
-
-// 6. Get Live Stats (active participants)
-app.get('/api/stats/live', (req, res) => {
-    db.all(
-        `SELECT COUNT(*) as active_participants FROM contest_sessions WHERE status = 'active'`,
-        (err, activeResult) => {
-            if (err) {
-                return res.status(500).json({ error: 'Failed to fetch stats' });
-            }
-
-            db.all(
-                `SELECT COUNT(*) as total_sessions FROM contest_sessions`,
-                (err, totalResult) => {
-                    if (err) {
-                        return res.status(500).json({ error: 'Failed to fetch stats' });
-                    }
-
-                    db.all(
-                        `SELECT AVG(total_score) as avg_score FROM contest_sessions WHERE status = 'completed'`,
-                        (err, avgResult) => {
-                            if (err) {
-                                return res.status(500).json({ error: 'Failed to fetch stats' });
-                            }
-
-                            res.json({
-                                success: true,
-                                stats: {
-                                    activeParticipants: activeResult[0].active_participants,
-                                    totalSessions: totalResult[0].total_sessions,
-                                    averageScore: avgResult[0].avg_score || 0
-                                }
-                            });
-                        }
-                    );
-                }
-            );
-        }
-    );
-});
-
-// 7. Get Participant's Past Sessions
-app.get('/api/participant/:email/sessions', (req, res) => {
-    const { email } = req.params;
-
-    db.all(
-        `SELECT cs.* 
-         FROM contest_sessions cs
-         JOIN participants p ON cs.participant_id = p.id
-         WHERE p.email = ?
-         ORDER BY cs.start_time DESC`,
-        [email],
-        (err, sessions) => {
-            if (err) {
-                return res.status(500).json({ error: 'Failed to fetch sessions' });
-            }
-
-            res.json({
-                success: true,
-                sessions: sessions
-            });
-        }
-    );
-});
-
-// Health check
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Server is running' });
-});
-
-// Start server
-app.listen(PORT, () => {
-    console.log(`🚀 SQL Contest Server running on http://localhost:${PORT}`);
-    console.log(`📊 Database: contest.db`);
-});
-
-// Graceful shutdown
-process.on('SIGINT', () => {
-    db.close((err) => {
-        if (err) {
-            console.error('Error closing database:', err);
-        } else {
-            console.log('Database connection closed');
-        }
-        process.exit(0);
+    await Leaderboard.create({
+      participantId: participant._id,
+      name: participant.name,
+      email: participant.email,
+      score: session.totalScore,
+      timeTaken,
+      accuracy
     });
+
+    res.json({ success: true, finalScore: session.totalScore });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to end contest' });
+  }
+});
+
+/* 5️⃣ Leaderboard */
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    const limit = Number(req.query.limit) || 10;
+
+    const rows = await Leaderboard.find()
+      .sort({ score: -1, timeTaken: 1 })
+      .limit(limit);
+
+    res.json({
+      success: true,
+      leaderboard: rows.map((r, i) => ({
+        rank: i + 1,
+        ...r.toObject()
+      }))
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch leaderboard' });
+  }
+});
+
+/* 6️⃣ Live Stats */
+app.get('/api/stats/live', async (req, res) => {
+  try {
+    const activeParticipants = await Session.countDocuments({ status: 'active' });
+    const totalSessions = await Session.countDocuments();
+
+    const avg = await Session.aggregate([
+      { $match: { status: 'completed' } },
+      { $group: { _id: null, avgScore: { $avg: '$totalScore' } } }
+    ]);
+
+    res.json({
+      success: true,
+      stats: {
+        activeParticipants,
+        totalSessions,
+        averageScore: avg[0]?.avgScore || 0
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
+});
+
+/* 7️⃣ Participant Sessions */
+app.get('/api/participant/:email/sessions', async (req, res) => {
+  try {
+    const participant = await Participant.findOne({ email: req.params.email });
+    if (!participant) return res.json({ success: true, sessions: [] });
+
+    const sessions = await Session.find({ participantId: participant._id })
+      .sort({ startTime: -1 });
+
+    res.json({ success: true, sessions });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch sessions' });
+  }
+});
+
+/* Health Check */
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
+});
+
+/* =========================
+   Start Server
+========================= */
+app.listen(PORT, () => {
+  console.log(`🚀 SQL Contest Server running on http://localhost:${PORT}`);
 });
